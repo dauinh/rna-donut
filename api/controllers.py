@@ -26,7 +26,8 @@ def get_stats(db: Session, sample_id: str):
         .having(func.count("*") > 1)
     )
     unique_count_per_type = db.execute(statement).all()
-    return count_per_type, unique_count_per_type
+    total_types = len(count_per_type)
+    return count_per_type, unique_count_per_type, total_types
 
 
 def get_sample(db: Session, sample_id: str):

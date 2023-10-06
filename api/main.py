@@ -41,12 +41,14 @@ def len(db: Session = Depends(get_db)):
 
 @app.get("/stats/{sample_id}")
 def calc_stats(sample_id: str, db: Session = Depends(get_db)):
-    count_per_type, unique_count_per_type = controllers.get_stats(db, sample_id=sample_id)
+    count_per_type, unique_count_per_type, total_types = controllers.get_stats(db, sample_id=sample_id)
     if not (count_per_type or unique_count_per_type):
         raise HTTPException(
             status_code=404, detail="Sample not found"
         )
+
     res = {
+        "total_types": total_types,
         "labels": [row[0] for row in count_per_type],
         "count_per_type": [row[1] for row in count_per_type],
         "unique_count_per_type": [row[1] for row in unique_count_per_type]
