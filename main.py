@@ -17,16 +17,16 @@ def get_db():
         db.close()
 
 
-@app.get("/")
-def read_all(db: Session = Depends(get_db)):
-    database = controllers.get_all(db)
-    if database is None:
+@app.get("/length")
+def len(db: Session = Depends(get_db)):
+    length = controllers.get_length(db)
+    if length is None:
         raise HTTPException(status_code=404, detail="Data not found")
-    return database
+    return length
 
 
-@app.get("/sample/{sample_id}", response_model=list[schemas.RNA])
-async def root(sample_id: int, db: Session = Depends(get_db)):
+@app.get("/samples/{sample_id}", response_model=list[schemas.RNA])
+async def get_sample(sample_id: str, db: Session = Depends(get_db)):
     sample = controllers.get_sample(db, sample_id=sample_id)
     if sample is None:
         raise HTTPException(status_code=404, detail="Sample not found")
