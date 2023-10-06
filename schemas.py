@@ -7,6 +7,3 @@ class RNA(BaseModel):
     license_plate: str
     type: str
     read_counts: int
-
-    class Config:
-        orm_mode = True
