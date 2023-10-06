@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 class RNA(BaseModel):
     id: str
     sample_id: str
