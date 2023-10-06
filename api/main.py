@@ -1,4 +1,5 @@
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 import controllers, models, schemas
@@ -8,6 +9,18 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Dependency
 def get_db():
@@ -34,8 +47,9 @@ def calc_stats(sample_id: str, db: Session = Depends(get_db)):
             status_code=404, detail="Sample not found"
         )
     res = {
-        "count_per_type": [{"type": row[0], "total_read_counts": row[1]} for row in count_per_type],
-        "unique_count_per_type": [{"type": row[0], "total_read_counts": row[1]} for row in unique_count_per_type]
+        "labels": [row[0] for row in count_per_type],
+        "count_per_type": [row[1] for row in count_per_type],
+        "unique_count_per_type": [row[1] for row in unique_count_per_type]
     }
 
     return res
