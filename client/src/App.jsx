@@ -35,10 +35,18 @@ export default () => {
     const backgroundColor = Array.from({ length: data["total_types"] }, () => generateRandomColor());
     const borderColor = backgroundColor.map(color => color.replace('0.2', '1'));
 
+    const calcPercent = (countList) => {
+        if (!countList) { return }
+        let res = Object.values(countList)
+        const sum = res.reduce((partialSum, a) => partialSum + a, 0);
+        const percentage = countList.map((num) => num / sum)
+        return percentage.map((num) => num * 100)
+    }
+
     const countPerType = [
         {
         label: 'Count per RNA type',
-        data: data["count_per_type"],
+        data: calcPercent(data["count_per_type"]),
         backgroundColor: backgroundColor,
         borderColor: borderColor,
         borderWidth: 1,
@@ -47,8 +55,8 @@ export default () => {
 
     const uniqueCountPerType = [
         {
-        label: 'Count per RNA type',
-        data: data["unique_count_per_type"],
+        label: 'Unique count per RNA type',
+        data: calcPercent(data["unique_count_per_type"]),
         backgroundColor: backgroundColor,
         borderColor: borderColor,
         borderWidth: 1,
@@ -78,15 +86,25 @@ export default () => {
                 {options.map((option, index) => (<option key={index} value={option}>{option}</option>))}
             </select>
         </div>
-        <div>
-            <h3 className="text-gray-800 text-2xl font-bold">
-                % sequences/molecules across types
-            </h3>
-            <Doughnut data={{ labels: data["labels"], datasets: countPerType }} />
-            <h3 className="text-gray-800 text-2xl font-bold">
-                % unique sequences/molecule across types
-            </h3>
-            <Doughnut data={{ labels: data["labels"], datasets: uniqueCountPerType }} />
+        <div className="mt-12 shadow-sm border rounded-lg overflow-x-auto">
+            <table className="w-full table-auto text-sm text-left">
+                <thead className="bg-gray-50 text-gray-600 font-medium border-b">
+                    <tr>
+                        <th className="py-3 px-6">% sequences/molecules across types</th>
+                        <th className="py-3 px-6">% unique sequences/molecule across types</th>
+                    </tr>
+                </thead>
+                <tbody className="text-gray-600 divide-y">
+                    <tr>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                            <Doughnut data={{ labels: data["labels"], datasets: countPerType }} />
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                            <Doughnut data={{ labels: data["labels"], datasets: uniqueCountPerType }} />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </>
     )
