@@ -57,11 +57,21 @@ def calc_stats(sample_id: str, db: Session = Depends(get_db)):
     return res
 
 
+@app.get("/samples")
+def samples_name(db: Session = Depends(get_db)):
+    names = controllers.get_samples_name(db)
+    if names is None:
+        raise HTTPException(status_code=404, detail="Sample not found")
+    res = [row[0] for row in names]
+
+    return res
+
+
 @app.get("/samples/{sample_id}")
 async def get_sample(sample_id: str, db: Session = Depends(get_db)):
     sample = controllers.get_sample(db, sample_id=sample_id)
     if sample is None:
-        raise HTTPException(status_code=404, detail="Sample not found")
+        raise HTTPException(status_code=404, detail=f"{sample_id} not found")
     res = [row[0] for row in sample]
 
     return res

@@ -30,6 +30,12 @@ def get_stats(db: Session, sample_id: str):
     return count_per_type, unique_count_per_type, total_types
 
 
+def get_samples_name(db: Session):
+    statement = select(models.RNA.sample_id.distinct())
+    rows = db.execute(statement).all()
+    return rows
+
+
 def get_sample(db: Session, sample_id: str):
     statement = select(models.RNA).filter(models.RNA.sample_id == sample_id)
     rows = db.execute(statement).all()
