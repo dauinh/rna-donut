@@ -3,7 +3,7 @@ import uuid
 
 from pprint import pprint
 
-DATA_FILE = "data/data.SAMPLE_100.expression.tsv"
+DATA_FILE = "data/data.SAMPLE_355.expression.tsv"
 sample_id = DATA_FILE.split(".")[1]
 
 

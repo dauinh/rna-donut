@@ -6,19 +6,27 @@ import models
 
 
 def get_total(db: Session):
-    statement = select(models.RNA)
-    rows = db.execute(statement).all()
-    return len(rows)
+    statement = select(func.count(models.RNA.id))
+    total = db.execute(statement).all()
+    return total
 
 
-def get_stats(db: Session):
+def get_stats(db: Session, sample_id: str):
     statement = (
         select(models.RNA.type, func.sum(models.RNA.read_counts))
+        .filter(models.RNA.sample_id == sample_id)
         .group_by(models.RNA.type)
         .having(func.count("*") > 1)
     )
-    rows = db.execute(statement).all()
-    return rows
+    count_per_type = db.execute(statement).all()
+    statement = (
+        select(models.RNA.type, func.count(models.RNA.license_plate.distinct()))
+        .filter(models.RNA.sample_id == sample_id)
+        .group_by(models.RNA.type)
+        .having(func.count("*") > 1)
+    )
+    unique_count_per_type = db.execute(statement).all()
+    return count_per_type, unique_count_per_type
 
 
 def get_sample(db: Session, sample_id: str):

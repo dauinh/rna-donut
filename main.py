@@ -20,22 +20,25 @@ def get_db():
 
 @app.get("/total")
 def len(db: Session = Depends(get_db)):
-    total = controllers.get_total(db)
+    total = controllers.get_total(db)[0][0]
     if total is None:
         raise HTTPException(status_code=404, detail="Data not found")
     return total
 
 
-@app.get("/stats")
-def calc_stats(db: Session = Depends(get_db)):
-    stats = controllers.get_stats(db)
-    if stats is None:
+@app.get("/stats/{sample_id}")
+def calc_stats(sample_id: str, db: Session = Depends(get_db)):
+    count_per_type, unique_count_per_type = controllers.get_stats(db, sample_id=sample_id)
+    if not (count_per_type or unique_count_per_type):
         raise HTTPException(
-            status_code=404, detail="Error occurred while calculating stats"
+            status_code=404, detail="Sample not found"
         )
-    stats_dict = [{"type": row[0], "total_read_counts": row[1]} for row in stats]
+    res = {
+        "count_per_type": [{"type": row[0], "total_read_counts": row[1]} for row in count_per_type],
+        "unique_count_per_type": [{"type": row[0], "total_read_counts": row[1]} for row in unique_count_per_type]
+    }
 
-    return stats_dict
+    return res
 
 
 @app.get("/samples/{sample_id}")
@@ -43,5 +46,6 @@ async def get_sample(sample_id: str, db: Session = Depends(get_db)):
     sample = controllers.get_sample(db, sample_id=sample_id)
     if sample is None:
         raise HTTPException(status_code=404, detail="Sample not found")
-    res = [r[0] for r in sample]
+    res = [row[0] for row in sample]
+
     return res
